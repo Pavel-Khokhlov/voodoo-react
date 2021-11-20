@@ -25,6 +25,7 @@ export const getPosts = createAsyncThunk(
 const initialState = {
   posts: [],
   fullPosts: [],
+  filteredPosts: [],
   postsStatus: null,
   postsError: null,
 };
@@ -33,14 +34,17 @@ export const postSlice = createSlice({
   name: "post",
   initialState,
   reducers: {
-    concatArr(status, action) {
-      const newPosts = status.posts.map((post) =>
+    initialPosts(state) {
+      state.filteredPosts = state.fullPosts;
+    },
+    concatArr(state, action) {
+      const newPosts = state.posts.map((post) =>
         Object.assign(
           post,
-          action.payload.find((user) => post.id === user.id)
+          action.payload.find((user) => Number(post.userId) === Number(user.id))
         )
       );
-      status.fullPosts = newPosts;
+      state.fullPosts = newPosts;
     },
     searchAuthor(state, action) {
       let filteredPosts = [];
@@ -50,7 +54,7 @@ export const postSlice = createSlice({
           .replace(/[.,!?%]/g, "")
           .includes(action.payload.toLowerCase())
       );
-      state.fullPosts = filteredPosts;
+      state.filteredPosts = filteredPosts;
     },
   },
   extraReducers: {
@@ -69,6 +73,6 @@ export const postSlice = createSlice({
   },
 });
 
-export const { concatArr, searchAuthor } = postSlice.actions;
+export const { concatArr, searchAuthor, initialPosts } = postSlice.actions;
 
 export default postSlice.reducer;

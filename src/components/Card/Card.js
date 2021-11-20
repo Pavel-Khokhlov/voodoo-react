@@ -1,6 +1,6 @@
 import "./Card.scss";
 
-const Card = (card) => {
+const Card = ({ card }) => {
   return (
     <div className="card">
       <div className="card-body">

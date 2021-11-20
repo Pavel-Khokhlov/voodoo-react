@@ -1,16 +1,19 @@
 import { useSelector } from "react-redux";
 import Card from "../Card/Card";
+import NoPosts from "../NoPosts/NoPosts";
 import "./Cards.scss";
 
 const Cards = () => {
-  const { posts, fullPosts } = useSelector((state) => state.post);
+  const { filteredPosts } = useSelector((state) => state.post);
 
-  console.log(fullPosts);
 
+  if(filteredPosts.length === 0) {
+    return <NoPosts />;
+  }
   return (
     <section className="cards">
-      {fullPosts.map((card) => {
-        return <Card key={card.id} {...card} />;
+      {filteredPosts.map((card, index) => {
+        return <Card key={index} card={card} />;
       })}
     </section>
   );

@@ -1,14 +1,15 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { concatArr, getPosts } from "../../store/postSlice";
+import { concatArr, getPosts, initialPosts } from "../../store/postSlice";
 import { getUsers } from "../../store/userSlice";
-import Cards from "../Cards/Cards";
 import Form from "../Form/Form";
+import Cards from "../Cards/Cards";
+import Footer from "../Footer/Footer";
 import "./App.scss";
 
 const App = () => {
   const dispatch = useDispatch();
-  const { posts, postsStatus } = useSelector((state) => state.post);
+  const { postsStatus } = useSelector((state) => state.post);
   const { users, usersStatus } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -19,6 +20,7 @@ const App = () => {
   useEffect(() => {
     if(postsStatus === `resolved` && usersStatus === `resolved`) {
       dispatch(concatArr(users));
+      dispatch(initialPosts());
     }
   }, [postsStatus, usersStatus])
 
@@ -26,6 +28,7 @@ const App = () => {
     <section className="app">
       <Form />
       <Cards />
+      <Footer />
     </section>
   );
 };

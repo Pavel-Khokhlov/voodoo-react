@@ -6,4 +6,5 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, MINMAX(280px, 1fr));
   gap: 20px;
+  flex: 1 1 auto;
 }
