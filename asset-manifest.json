@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/voodoo-react/static/css/main.d97b3822.chunk.css",
-    "main.js": "/voodoo-react/static/js/main.fa78fb59.chunk.js",
-    "main.js.map": "/voodoo-react/static/js/main.fa78fb59.chunk.js.map",
+    "main.css": "/voodoo-react/static/css/main.44f3f4ae.chunk.css",
+    "main.js": "/voodoo-react/static/js/main.034d9d29.chunk.js",
+    "main.js.map": "/voodoo-react/static/js/main.034d9d29.chunk.js.map",
     "runtime-main.js": "/voodoo-react/static/js/runtime-main.c91c749f.js",
     "runtime-main.js.map": "/voodoo-react/static/js/runtime-main.c91c749f.js.map",
-    "static/js/2.fbee35aa.chunk.js": "/voodoo-react/static/js/2.fbee35aa.chunk.js",
-    "static/js/2.fbee35aa.chunk.js.map": "/voodoo-react/static/js/2.fbee35aa.chunk.js.map",
+    "static/js/2.7861d217.chunk.js": "/voodoo-react/static/js/2.7861d217.chunk.js",
+    "static/js/2.7861d217.chunk.js.map": "/voodoo-react/static/js/2.7861d217.chunk.js.map",
     "index.html": "/voodoo-react/index.html",
-    "static/css/main.d97b3822.chunk.css.map": "/voodoo-react/static/css/main.d97b3822.chunk.css.map",
-    "static/js/2.fbee35aa.chunk.js.LICENSE.txt": "/voodoo-react/static/js/2.fbee35aa.chunk.js.LICENSE.txt"
+    "static/css/main.44f3f4ae.chunk.css.map": "/voodoo-react/static/css/main.44f3f4ae.chunk.css.map",
+    "static/js/2.7861d217.chunk.js.LICENSE.txt": "/voodoo-react/static/js/2.7861d217.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.c91c749f.js",
-    "static/js/2.fbee35aa.chunk.js",
-    "static/css/main.d97b3822.chunk.css",
-    "static/js/main.fa78fb59.chunk.js"
+    "static/js/2.7861d217.chunk.js",
+    "static/css/main.44f3f4ae.chunk.css",
+    "static/js/main.034d9d29.chunk.js"
   ]
 }
