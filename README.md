@@ -2,9 +2,10 @@
 
 [LINK TO THE PROJECT](https://pavel-khokhlov.github.io/voodoo-react/)
 
-***Technologies**
+**Technologies**
 
 1. ReactJS
 2. SASS
 3. REDUX-TOOLKIT
 4. BOOTSTRAP
+5. Адаптивная верстка
