@@ -7,12 +7,12 @@ import "./cards.scss";
 const Cards = () => {
   const { booksStore } = useStore();
 
-  if (booksStore.filteredBooks.length === 0) {
+  if (booksStore.lists.length === 0) {
     return <NoPosts />;
   }
   return (
     <section className="cards">
-      {booksStore.filteredBooks.map((book, index) => {
+      {booksStore.lists.map((book, index) => {
         return <Card key={index} card={book} />;
       })}
     </section>

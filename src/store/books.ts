@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 // Определяем типы (оставляем без изменений)
-export interface Book {
+export interface List {
   userId: number;
   id: number;
   title: string;
@@ -11,31 +11,31 @@ export interface Book {
   [key: string]: any;
 }
 
-export interface FullBook extends Book {
-  name: string;
-}
-
 // Определяем интерфейс Store
 interface BooksStore {
-  // State
-  books: Book[];
-  fullBooks: FullBook[];
-  filteredBooks: FullBook[];
+  bestsellers_date: string;
+  lists: List[];
+  next_published_date: string;
+  previous_published_date: string;
+  published_date: string;
+  published_date_description: string;
   booksStatus: "idle" | "loading" | "resolved" | "rejected" | null;
   booksError: string | null;
 
   // Actions
   getBooks: () => Promise<void>;
   searchAuthor: (searchTerm: string) => void;
-  initialBooks: () => void;
   reset: () => void;
 }
 
 // Начальное состояние
 const initialState = {
-  books: [],
-  fullBooks: [],
-  filteredBooks: [],
+  bestsellers_date: "",
+  lists: [],
+  next_published_date: "",
+  previous_published_date: "",
+  published_date: "",
+  published_date_description: "",
   booksStatus: null,
   booksError: null,
 };
@@ -50,10 +50,10 @@ export const useBooksStore = create<BooksStore>()(
         set({ booksStatus: "loading", booksError: null });
 
         const API_KEY = import.meta.env.VITE_NYT_API_KEY;
-        const API_URL = import.meta.env.VITE_NYT_API_URL;
+        // const API_URL = import.meta.env.VITE_NYT_API_URL;
         const PATH = import.meta.env.VITE_NYT_ALL_BOOKS;
 
-        const url = `/api/nyt${PATH}?api-key=${API_KEY}`;
+        const url = `/api/nyt${PATH}`;
 
         try {
           console.log("Request URL:", url);
@@ -65,10 +65,10 @@ export const useBooksStore = create<BooksStore>()(
           }
 
           const data = await res.json();
-          console.log("books", data.results.lists);
+          console.log("lists", data.results);
 
           set({
-            books: data.results as Book[],
+            lists: data.results.lists as List[],
             booksStatus: "resolved",
           });
         } catch (error) {
@@ -79,7 +79,7 @@ export const useBooksStore = create<BooksStore>()(
         }
       },
 
-      searchAuthor: (searchTerm: string) => {
+      /* searchAuthor: (searchTerm: string) => {
         const cleanSearchTerm = searchTerm
           .toLowerCase()
           .replace(/[.,!?%]/g, "");
@@ -92,11 +92,7 @@ export const useBooksStore = create<BooksStore>()(
         );
 
         set({ filteredBooks });
-      },
-
-      initialBooks: () => {
-        set({ filteredBooks: get().fullBooks });
-      },
+      }, */
 
       reset: () => {
         set(initialState);
@@ -107,16 +103,12 @@ export const useBooksStore = create<BooksStore>()(
 );
 
 // Селекторы (опционально, для удобства)
-export const useBooks = () => useBooksStore((state) => state.books);
-export const useFullBooks = () => useBooksStore((state) => state.fullBooks);
-export const useFilteredBooks = () =>
-  useBooksStore((state) => state.filteredBooks);
+export const useBooks = () => useBooksStore((state) => state.lists);
 export const useBooksStatus = () => useBooksStore((state) => state.booksStatus);
 export const useBooksError = () => useBooksStore((state) => state.booksError);
 export const useBookActions = () =>
   useBooksStore((state) => ({
     getBooks: state.getBooks,
     searchAuthor: state.searchAuthor,
-    initialBooks: state.initialBooks,
     reset: state.reset,
   }));

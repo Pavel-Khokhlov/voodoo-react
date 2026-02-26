@@ -1,10 +1,10 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Selector from "@/components/Base/Selector";
+import Cards from "../Cards";
 import { NYT_DATA } from "@/data/newYorkTimes";
 
 import "./app.scss";
-import Cards from "../Cards";
 
 const App = () => {
   return (
