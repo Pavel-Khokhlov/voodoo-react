@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Select } from "antd";
+import { useBookActions } from "@/store/books";
+
 import "./selector.scss";
-import { useAppDispatch } from "@/store/hook";
-import { getBooks } from "@/store/booksSlice";
+import { useStore } from "@/store";
 
 interface SelectorProps {
   optionsData: Array<{ value: string; label: string }>;
 }
 
 const CustomSelect: React.FC<SelectorProps> = ({ optionsData }) => {
-  const dispatch = useAppDispatch();
+  const { booksStore } = useStore();
   const [selected, setSelected] = useState<string>("");
   const handleSelect = async (value: string) => {
     setSelected(value);
@@ -22,7 +23,7 @@ const CustomSelect: React.FC<SelectorProps> = ({ optionsData }) => {
     switch (selected) {
       case "books":
         console.log("SELECTED", selected);
-        dispatch(getBooks());
+        booksStore.getBooks();
         break;
       default:
         break;

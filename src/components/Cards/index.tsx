@@ -1,19 +1,18 @@
-import { useSelector } from "react-redux";
 import Card from "@/components/Card";
 import NoPosts from "@/components/NoPosts";
-import "./Cards.scss";
-import { useAppSelector } from "@/store/hook";
+import { useStore } from "@/store";
+
+import "./cards.scss";
 
 const Cards = () => {
-  const { filteredBooks } = useAppSelector((state) => state.book);
+  const { booksStore } = useStore();
 
-
-  if(filteredBooks.length === 0) {
+  if (booksStore.filteredBooks.length === 0) {
     return <NoPosts />;
   }
   return (
     <section className="cards">
-      {filteredBooks.map((book, index) => {
+      {booksStore.filteredBooks.map((book, index) => {
         return <Card key={index} card={book} />;
       })}
     </section>

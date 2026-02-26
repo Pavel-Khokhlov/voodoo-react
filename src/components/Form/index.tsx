@@ -1,10 +1,7 @@
 import { SetStateAction, useState } from "react";
-import { useDispatch } from "react-redux";
-import { searchAuthor } from "@/store/booksSlice";
-import "./Form.scss";
+import "./form.scss";
 
 const Form = () => {
-  const dispatch = useDispatch();
   const [value, setValue] = useState("");
 
   const handleChange = (e: { target: { value: SetStateAction<string>; }; }) => {
@@ -13,7 +10,6 @@ const Form = () => {
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    dispatch(searchAuthor(value));
   }
 
   return (
