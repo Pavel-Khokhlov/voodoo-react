@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+/* import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { API, PATH_USERS } from "../utils/config";
 
 export const getUsers = createAsyncThunk(
@@ -32,23 +32,27 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    // You can add regular reducers here if needed
   },
-  extraReducers: {
-    [getUsers.pending]: (state) => {
-      state.usersStatus = "loading";
-      state.usersError = null;
-    },
-    [getUsers.fulfilled]: (state, action) => {
-      state.usersStatus = "resolved";
-      state.users = action.payload;
-    },
-    [getUsers.rejected]: (state, action) => {
-      state.usersStatus = "rejected";
-      state.usersError = action.payload;
-    },
+  // FIXED: Changed from object notation to builder callback
+  extraReducers: (builder) => {
+    builder
+      .addCase(getUsers.pending, (state) => {
+        state.usersStatus = "loading";
+        state.usersError = null;
+      })
+      .addCase(getUsers.fulfilled, (state, action) => {
+        state.usersStatus = "resolved";
+        state.users = action.payload;
+      })
+      .addCase(getUsers.rejected, (state, action) => {
+        state.usersStatus = "rejected";
+        state.usersError = action.payload;
+      });
   },
 });
 
+// You can export actions here if you add any regular reducers
 export const { } = userSlice.actions;
 
-export default userSlice.reducer;
+export default userSlice.reducer; */

@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { useDispatch } from "react-redux";
-import { searchAuthor } from "../../store/postSlice";
+import { searchAuthor } from "@/store/booksSlice";
 import "./Form.scss";
 
 const Form = () => {
   const dispatch = useDispatch();
   const [value, setValue] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { value: SetStateAction<string>; }; }) => {
     setValue(e.target.value);
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     dispatch(searchAuthor(value));
   }

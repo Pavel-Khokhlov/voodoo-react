@@ -1,4 +1,4 @@
-import "./NoPosts.scss";
+import "./noposts.scss";
 
 const NoPosts = () => {
   return (

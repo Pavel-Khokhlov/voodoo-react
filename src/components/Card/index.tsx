@@ -1,6 +1,6 @@
-import "./Card.scss";
+import "./card.scss";
 
-const Card = ({ card }) => {
+const Card = ({ card }: any) => {
   return (
     <div className="card">
       <div className="card-body">

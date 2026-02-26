@@ -1,0 +1,11 @@
+.header {
+  margin: 0;
+  padding: min(20px, 3vw) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &__logo {
+    width: min(485px, 47.5vw);
+    height: min(64px, 6.5vw)
+  }
+}

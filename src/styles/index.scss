@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh; /* Запасной вариант для очень старых браузеров */
+  min-height: calc(var(--vh, 1vh) * 100);
 }
 
 code {
@@ -13,5 +15,5 @@ code {
 }
 
 .root {
-  height: 100%;
+  min-height: 100vh;
 }
