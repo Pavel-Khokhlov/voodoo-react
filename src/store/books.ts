@@ -1,14 +1,54 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-// Определяем типы (оставляем без изменений)
-export interface List {
-  userId: number;
-  id: number;
+export interface BuyLink {
+  name: string;
+  url: string;
+}
+
+// Определяем интерфейс Book
+export interface Book {
+  age_group: string;
+  amazon_product_url: string;
+  article_chapter_link: string;
+  asterisk: number;
+  author: string;
+  book_image: string;
+  book_image_height: number;
+  book_image_width: number;
+  book_review_link: string;
+  book_uri: string;
+  buy_links: BuyLink[];
+  contributor: string;
+  contributor_note: string;
+  created_date: string;
+  dagger: number;
+  description: string;
+  first_chapter_link: string;
+  isbns: Array<{ isbn10: string; isbn13: string }>;
+  price: string;
+  primary_isbn10: string;
+  primary_isbn13: string;
+  publisher: string;
+  rank: number;
+  rank_last_week: number;
+  sunday_review_link: string;
   title: string;
-  body: string;
-  name?: string;
-  [key: string]: any;
+  updated_date: string;
+  weeks_on_list: number;
+}
+
+// Определяем интерфейс List
+export interface List {
+  books: Book[];
+  corrections: any[];
+  display_name: string;
+  list_id: number;
+  list_name: string;
+  list_name_encoded: string;
+  normal_list_ends_at: number;
+  updated: string;
+  uri: string;
 }
 
 // Определяем интерфейс Store
@@ -19,11 +59,13 @@ interface BooksStore {
   previous_published_date: string;
   published_date: string;
   published_date_description: string;
+  selected_list: string;
   booksStatus: "idle" | "loading" | "resolved" | "rejected" | null;
   booksError: string | null;
 
   // Actions
-  getBooks: () => Promise<void>;
+  getLists: () => Promise<void>;
+  setList: (selected_list: string) => void;
   searchAuthor: (searchTerm: string) => void;
   reset: () => void;
 }
@@ -36,6 +78,7 @@ const initialState = {
   previous_published_date: "",
   published_date: "",
   published_date_description: "",
+  selected_list: "",
   booksStatus: null,
   booksError: null,
 };
@@ -46,18 +89,14 @@ export const useBooksStore = create<BooksStore>()(
     (set, get) => ({
       ...initialState,
 
-      getBooks: async () => {
+      getLists: async () => {
         set({ booksStatus: "loading", booksError: null });
 
-        const API_KEY = import.meta.env.VITE_NYT_API_KEY;
-        // const API_URL = import.meta.env.VITE_NYT_API_URL;
         const PATH = import.meta.env.VITE_NYT_ALL_BOOKS;
 
         const url = `/api/nyt${PATH}`;
 
         try {
-          console.log("Request URL:", url);
-
           const res = await fetch(url);
 
           if (!res.ok) {
@@ -65,10 +104,14 @@ export const useBooksStore = create<BooksStore>()(
           }
 
           const data = await res.json();
-          console.log("lists", data.results);
 
           set({
             lists: data.results.lists as List[],
+            bestsellers_date: data.results.bestsellers_date,
+            next_published_date: data.results.next_published_date,
+            previous_published_date: data.results.previous_published_date,
+            published_date: data.results.published_date,
+            published_date_description: data.results.published_date_description,
             booksStatus: "resolved",
           });
         } catch (error) {
@@ -79,20 +122,9 @@ export const useBooksStore = create<BooksStore>()(
         }
       },
 
-      /* searchAuthor: (searchTerm: string) => {
-        const cleanSearchTerm = searchTerm
-          .toLowerCase()
-          .replace(/[.,!?%]/g, "");
-
-        const filteredBooks = get().fullBooks.filter((book) =>
-          book.name
-            .toLowerCase()
-            .replace(/[.,!?%]/g, "")
-            .includes(cleanSearchTerm),
-        );
-
-        set({ filteredBooks });
-      }, */
+      setList: (value: string) => {
+        set({ selected_list: value });
+      },
 
       reset: () => {
         set(initialState);
@@ -106,9 +138,13 @@ export const useBooksStore = create<BooksStore>()(
 export const useBooks = () => useBooksStore((state) => state.lists);
 export const useBooksStatus = () => useBooksStore((state) => state.booksStatus);
 export const useBooksError = () => useBooksStore((state) => state.booksError);
+export const useSelectedList = () =>
+  useBooksStore((state) => state.selected_list);
+export const useSetSelectedList = () => useBooksStore((state) => state.setList);
+
 export const useBookActions = () =>
   useBooksStore((state) => ({
-    getBooks: state.getBooks,
+    getList: state.getLists,
     searchAuthor: state.searchAuthor,
     reset: state.reset,
   }));

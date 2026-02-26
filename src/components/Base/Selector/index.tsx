@@ -1,39 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import { Select } from "antd";
-import { useBookActions } from "@/store/books";
 
 import "./selector.scss";
-import { useStore } from "@/store";
-
 interface SelectorProps {
   optionsData: Array<{ value: string; label: string }>;
+  onSelect: (value: string) => Promise<void>;
 }
 
-const CustomSelect: React.FC<SelectorProps> = ({ optionsData }) => {
-  const { booksStore } = useStore();
-  const [selected, setSelected] = useState<string>("");
-  const handleSelect = async (value: string) => {
-    setSelected(value);
-  };
-
-  const getData = useCallback(() => {
-    if (selected === "") {
-      return;
-    }
-    switch (selected) {
-      case "books":
-        console.log("SELECTED", selected);
-        booksStore.getBooks();
-        break;
-      default:
-        break;
-    }
-  }, [selected]);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
+const CustomSelect: React.FC<SelectorProps> = ({ optionsData, onSelect }) => {
   return (
     <div className="selector">
       <Select
@@ -44,8 +18,8 @@ const CustomSelect: React.FC<SelectorProps> = ({ optionsData }) => {
               .toLowerCase()
               .localeCompare((optionB?.label ?? "").toLowerCase()),
         }}
-        onSelect={handleSelect}
-        style={{ width: 300 }}
+        onSelect={onSelect}
+        style={{ width: 500 }}
         size="large"
         placeholder="Search to Select"
         options={optionsData}

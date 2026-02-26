@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 // Получаем API ключ из process.env
 const API_KEY = process.env.VITE_NYT_API_KEY;
+const API_URL = process.env.VITE_NYT_API_URL;
 
 export default defineConfig({
   plugins: [react()],
@@ -15,12 +16,11 @@ export default defineConfig({
     open: true,
     proxy: {
       "/api/nyt": {
-        target: "https://api.nytimes.com/svc",
+        target: API_URL,
         changeOrigin: true,
         rewrite: (path) => {
           // Убираем /api/nyt из начала пути
           const newPath = path.replace(/^\/api\/nyt/, "");
-          console.log("Rewritten path:", newPath);
           return newPath;
         },
         configure: (proxy) => {
@@ -63,4 +63,7 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version)
+  }
 });
