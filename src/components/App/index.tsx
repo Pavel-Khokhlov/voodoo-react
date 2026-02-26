@@ -1,38 +1,67 @@
-// import { useEffect } from "react";
-// import { getBooks } from "@/store/booksSlice";
-// import { getUsers } from "@/store/userSlice";
 import Header from "@/components/Header";
-import Form from "@/components/Form";
-import Cards from "@/components/Cards";
 import Footer from "@/components/Footer";
 import Selector from "@/components/Base/Selector";
-// import { useAppDispatch, useAppSelector } from "@/store/hook";
+import Cards from "../Cards";
 import { NYT_DATA } from "@/data/newYorkTimes";
+
+import { useStore } from "@/store";
+import { List } from "@/store/books";
+import { useCallback, useState, useEffect } from "react";
+import { Category } from "@/store/globalUI";
 
 import "./app.scss";
 
 const App = () => {
-  // const dispatch = useAppDispatch();
-  // const { booksStatus } = useAppSelector((state) => state.book);
-  // const { users, usersStatus } = useSelector((state) => state.user);
+  const { booksStore, globalUIStore } = useStore();
+  const [selected, setSelected] = useState<Category>("");
 
-  /* useEffect(() => {
-    dispatch(getBooks());
-    dispatch(getUsers());
-  }, []); */
+  const handleCategory = async (value: string) => {
+    setSelected(value as Category);
+  };
 
-  /* useEffect(() => {
-    if(booksStatus === `resolved`) {
-      dispatch(concatArr(users));
-      dispatch(initialPosts());
+  const handleList = async (value: string) => {
+    booksStore.setList(value);
+  };
+
+  const getData = useCallback(() => {
+    if (selected === "") {
+      return;
     }
-  }, [booksStatus]) */
+    switch (selected) {
+      case "books":
+        globalUIStore.setCategory(selected);
+        booksStore.getLists();
+        break;
+      case "news":
+        globalUIStore.setCategory(selected);
+        break;
+      default:
+        globalUIStore.setCategory(selected);
+        break;
+    }
+  }, [selected]);
 
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  const getListsOptions = () => {
+    const options = booksStore.lists.map((list: List) => {
+      return {
+        value: list.list_name_encoded,
+        label: list.display_name,
+      };
+    });
+    return options;
+  };
   return (
     <section className="app">
       <Header />
-      <Selector optionsData={NYT_DATA}/>
-      <Form />
+      <Selector optionsData={NYT_DATA} onSelect={handleCategory} />
+      {globalUIStore.category === "books" && (
+        <Selector optionsData={getListsOptions()} onSelect={handleList} />
+      )}
+      {/* <Form /> */}
       <Cards />
       <Footer />
     </section>

@@ -1,20 +1,34 @@
-import { useSelector } from "react-redux";
 import Card from "@/components/Card";
-import NoPosts from "@/components/NoPosts";
-import "./Cards.scss";
-import { useAppSelector } from "@/store/hook";
+import NoData from "@/components/NoData";
+import { useStore } from "@/store";
+
+import "./cards.scss";
+import { useEffect, useState } from "react";
+import { Book, List } from "@/store/books";
 
 const Cards = () => {
-  const { filteredBooks } = useAppSelector((state) => state.book);
+  const { booksStore } = useStore();
 
+  const [books, setBooks] = useState<Book[] | []>([]);
 
-  if(filteredBooks.length === 0) {
-    return <NoPosts />;
+  useEffect(() => {
+    if (booksStore.selected_list === "") {
+      return;
+    }
+    const currentBooks = booksStore.lists.filter((list: List) => {
+      return list.list_name_encoded === booksStore.selected_list;
+    });
+    console.log("useEffect", currentBooks[0]?.books);
+    setBooks(currentBooks[0].books);
+  }, [booksStore.selected_list]);
+
+  if (booksStore.lists.length === 0) {
+    return <NoData />;
   }
   return (
     <section className="cards">
-      {filteredBooks.map((book, index) => {
-        return <Card key={index} card={book} />;
+      {books?.map((book: Book) => {
+        return <Card key={book.book_uri} book={book} />;
       })}
     </section>
   );

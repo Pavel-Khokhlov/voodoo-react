@@ -1,3 +1,58 @@
-.card__title {
-  color: $secondary-color;
+.book {
+  &__wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: white;
+    box-sizing: border-box;
+    border-radius: min(12px, 1vw);
+    overflow: hidden;
+    box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.1);
+    padding: min(10px, 1.5vw);
+    transition: $app-transition;
+    &:hover {
+      transform: scale(1.03);
+      box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.2);
+      transition: $app-transition;
+    }
+  }
+  &__cover {
+    width: 100%;
+    margin-bottom: min(15px, 1.5vw);
+  }
+  &__text {
+    width: 100%;
+    text-align: center;
+    margin-bottom: min(10px, 1.5vw);
+  }
+  &__title {
+    color: $secondary-color;
+    font-size: min(20px, 3.5vw);
+    font-weight: 700;
+  }
+  &__author {
+    font-size: min(16px, 3vw);
+  }
+  &__description {
+    font-size: min(14px, 2.5vw);
+  }
+  &__weeks {
+    font-size: min(16px, 3vw);
+    margin: auto 0 0;
+  }
+  &__buy {
+    margin: 0;
+    font-size: min(14px, 2vw);
+  }
+  &__icons {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+  }
+  &__icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+  }
 }
