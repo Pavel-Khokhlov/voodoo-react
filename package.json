@@ -2,6 +2,7 @@
   "name": "voodoo-react",
   "version": "1.0.3",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "vite",
     "build": "vite build",
