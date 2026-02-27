@@ -10,7 +10,7 @@ const API_KEY = process.env.VITE_NYT_API_KEY;
 const API_URL = process.env.VITE_NYT_API_URL;
 
 export default defineConfig({
-  base: "/",
+  base: '/',
   plugins: [react()],
   server: {
     port: 3000,
@@ -27,8 +27,8 @@ export default defineConfig({
         configure: (proxy) => {
           proxy.on("proxyReq", (proxyReq, req) => {
             // Добавляем api-key к URL, если его нет
-            if (!proxyReq.path.includes("api-key=") && API_KEY) {
-              const separator = proxyReq.path.includes("?") ? "&" : "?";
+            if (!proxyReq.path.includes('api-key=') && API_KEY) {
+              const separator = proxyReq.path.includes('?') ? '&' : '?';
               proxyReq.path += `${separator}api-key=${API_KEY}`;
             }
             console.log("Final URL:", proxyReq.path);
@@ -44,11 +44,11 @@ export default defineConfig({
     // Добавьте это для корректной обработки путей
     rollupOptions: {
       output: {
-        assetFileNames: "assets/[name][extname]",
-        chunkFileNames: "assets/[name].js",
-        entryFileNames: "assets/[name].js",
-      },
-    },
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+      }
+    }
   },
   resolve: {
     alias: {
@@ -74,8 +74,6 @@ export default defineConfig({
     },
   },
   define: {
-    "import.meta.env.APP_VERSION": JSON.stringify(
-      process.env.npm_package_version,
-    ),
-  },
+    'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version)
+  }
 });

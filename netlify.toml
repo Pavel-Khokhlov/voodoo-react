@@ -1,0 +1,10 @@
+[[redirects]]
+  from = "/api/nyt/*"
+  to = "https://api.nytimes.com/svc/:splat?api-key=:VITE_NYT_API_KEY"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/api/nyt/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
