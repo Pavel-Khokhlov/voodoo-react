@@ -2,9 +2,10 @@ import Card from "@/components/Card";
 import NoData from "@/components/NoData";
 import { useStore } from "@/store";
 
-import "./cards.scss";
 import { useEffect, useState } from "react";
 import { Book, List } from "@/store/books";
+
+import "./cards.scss";
 
 const Cards = () => {
   const { booksStore } = useStore();
