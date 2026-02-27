@@ -10,7 +10,7 @@ const API_KEY = process.env.VITE_NYT_API_KEY;
 const API_URL = process.env.VITE_NYT_API_URL;
 
 export default defineConfig({
-  base: '/voodoo-react/',
+  base: '/',
   plugins: [react()],
   server: {
     port: 3000,
@@ -38,7 +38,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "build",
+    outDir: "dist",
     sourcemap: true,
     assetsDir: "assets",
     // Добавьте это для корректной обработки путей
