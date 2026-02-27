@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/nyt/:path*",
+      "destination": "/api/nyt?path=/:path*"
+    }
+  ]
+}
