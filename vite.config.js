@@ -9,12 +9,8 @@ dotenv.config();
 const API_KEY = process.env.VITE_NYT_API_KEY;
 const API_URL = process.env.VITE_NYT_API_URL;
 
-// Определяем base для GitHub Pages
-const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
-const base = isGitHubPages ? '/voodoo-react/' : '/';
-
 export default defineConfig({
-  base,
+  base: '/voodoo-react/',
   plugins: [react()],
   server: {
     port: 3000,
@@ -44,6 +40,15 @@ export default defineConfig({
   build: {
     outDir: "build",
     sourcemap: true,
+    assetsDir: "assets",
+    // Добавьте это для корректной обработки путей
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+      }
+    }
   },
   resolve: {
     alias: {
