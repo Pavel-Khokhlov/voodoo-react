@@ -92,8 +92,8 @@ export const useBooksStore = create<BooksStore>()(
       getLists: async () => {
         set({ booksStatus: "loading", booksError: null });
 
-        const PATH = import.meta.env.VITE_NYT_ALL_BOOKS;
-
+        const PATH =
+          import.meta.env.VITE_NYT_ALL_BOOKS || "/lists/overview.json";
         const url = `/api/nyt${PATH}`;
 
         try {
