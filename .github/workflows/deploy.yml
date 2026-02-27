@@ -36,7 +36,7 @@ jobs:
         env:
           VITE_NYT_API_KEY: ${{ secrets.VITE_NYT_API_KEY }}
           VITE_NYT_API_URL: ${{ vars.VITE_NYT_API_URL }}
-          VITE_APP_VERSION: ${{ github.sha }}
+          GITHUB_ACTIONS: 'true'
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

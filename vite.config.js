@@ -9,7 +9,12 @@ dotenv.config();
 const API_KEY = process.env.VITE_NYT_API_KEY;
 const API_URL = process.env.VITE_NYT_API_URL;
 
+// Определяем base для GitHub Pages
+const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+const base = isGitHubPages ? '/voodoo-react/' : '/';
+
 export default defineConfig({
+  base,
   plugins: [react()],
   server: {
     port: 3000,
