@@ -19,7 +19,7 @@ const Cards = () => {
     const currentBooks = booksStore.lists.filter((list: List) => {
       return list.list_name_encoded === booksStore.selected_list;
     });
-    console.log("useEffect", currentBooks[0]?.books);
+    // console.log("useEffect", currentBooks[0]?.books);
     setBooks(currentBooks[0].books);
   }, [booksStore.selected_list]);
 
