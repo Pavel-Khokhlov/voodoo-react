@@ -1,3 +1,4 @@
+import { dbService } from "@/db/indexedDB";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
@@ -84,62 +85,9 @@ const initialState = {
   booksError: null,
 };
 
-// Вспомогательные функции для работы с IndexedDB
-const openDB = (): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open("books-database", 1);
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains("books-store")) {
-        db.createObjectStore("books-store");
-      }
-    };
-  });
-};
-
-const saveToDB = async (key: string, value: any): Promise<void> => {
-  try {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction("books-store", "readwrite");
-      const store = tx.objectStore("books-store");
-      const request = store.put(value, key);
-
-      request.onsuccess = () => {
-        tx.commit();
-        resolve();
-      };
-      request.onerror = () => reject(request.error);
-
-      tx.oncomplete = () => db.close();
-    });
-  } catch (error) {
-    console.error("Ошибка сохранения в IndexedDB:", error);
-  }
-};
-
-const loadFromDB = async (key: string): Promise<any> => {
-  try {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction("books-store", "readonly");
-      const store = tx.objectStore("books-store");
-      const request = store.get(key);
-
-      request.onsuccess = () => {
-        resolve(request.result);
-        db.close();
-      };
-      request.onerror = () => reject(request.error);
-    });
-  } catch (error) {
-    console.error("Ошибка загрузки из IndexedDB:", error);
-    return null;
-  }
+// Ключи для хранения в IndexedDB
+const DB_KEYS = {
+  BOOKS_DATA: "books-data",
 };
 
 // Создаем store
@@ -151,22 +99,19 @@ export const useBooksStore = create<BooksStore>()(
       // Функция для инициализации/загрузки данных из IndexedDB при старте
       initializeFromDB: async () => {
         try {
-          const savedData = await loadFromDB("books-data");
-          const lastUpdate = await loadFromDB("last-update");
+          const stored = await dbService.load<BooksStore>(DB_KEYS.BOOKS_DATA);
 
-          if (savedData && lastUpdate) {
-            const now = Date.now();
-            const oneDayMs = 24 * 60 * 60 * 1000;
-
-            // Проверяем, не устарели ли данные
-            if (now - lastUpdate < oneDayMs) {
-              set({
-                ...savedData,
-                booksStatus: "resolved",
-              });
-              console.log("📚 Данные восстановлены из IndexedDB");
-              return true;
-            }
+          if (stored && dbService.isDataFresh(stored.timestamp)) {
+            // Восстанавливаем состояние из сохраненных данных
+            set({
+              ...stored.data,
+              booksStatus: "resolved",
+            });
+            console.log(
+              "📚 Данные книг восстановлены из IndexedDB",
+              new Date(stored.timestamp).toLocaleString(),
+            );
+            return true;
           }
           return false;
         } catch (error) {
@@ -189,8 +134,7 @@ export const useBooksStore = create<BooksStore>()(
         // Иначе загружаем с сервера
         set({ booksStatus: "loading", booksError: null });
 
-        const PATH =
-          import.meta.env.VITE_NYT_ALL_BOOKS || "/lists/overview.json";
+        const PATH = import.meta.env.VITE_NYT_ALL_BOOKS;
         const url = `/api/nyt${PATH}`;
 
         try {
@@ -212,13 +156,15 @@ export const useBooksStore = create<BooksStore>()(
             booksStatus: "resolved" as const,
           };
 
-          set(newState);
+          set({
+            ...newState,
+            booksStatus: "resolved",
+          });
 
           // Сохраняем в IndexedDB
-          await saveToDB("books-data", newState);
-          await saveToDB("last-update", Date.now());
+          await dbService.save(DB_KEYS.BOOKS_DATA, newState, "books");
 
-          console.log("💾 Данные сохранены в IndexedDB");
+          console.log("💾 Данные книг сохранены в IndexedDB");
         } catch (error) {
           set({
             booksStatus: "rejected",
@@ -227,8 +173,8 @@ export const useBooksStore = create<BooksStore>()(
         }
       },
 
-      setList: (value: string) => {
-        set({ selected_list: value });
+      setList: (selected_list: string) => {
+        set({ selected_list });
       },
 
       reset: () => {

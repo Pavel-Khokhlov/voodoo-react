@@ -1,9 +1,11 @@
-import { useBooksStore } from './books';
 import { useGlobalUIStore } from './globalUI';
+import { useNewsStore } from './news';
+import { useBooksStore } from './books';
 
 export const useStore = () => {
   return {
-    booksStore: useBooksStore(),
     globalUIStore: useGlobalUIStore(),
+    newsStore: useNewsStore(),
+    booksStore: useBooksStore(),
   };
 };
