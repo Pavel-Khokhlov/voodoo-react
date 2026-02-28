@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Selector from "@/components/Base/Selector";
-import Cards from "../Cards";
 import { NYT_DATA } from "@/data/newYorkTimes";
 
 import { useStore } from "@/store";
@@ -10,6 +9,7 @@ import { useCallback, useState, useEffect } from "react";
 import { Category } from "@/store/globalUI";
 
 import "./app.scss";
+import BooksList from "../Books";
 
 const App = () => {
   const { booksStore, globalUIStore } = useStore();
@@ -58,11 +58,15 @@ const App = () => {
     <section className="app">
       <Header />
       <Selector optionsData={NYT_DATA} onSelect={handleCategory} />
-      {globalUIStore.category === "books" && (
-        <Selector optionsData={getListsOptions()} onSelect={handleList} />
-      )}
-      {/* <Form /> */}
-      <Cards />
+      <section className="main">
+        {globalUIStore.category === "books" && (
+          <>
+            <Selector optionsData={getListsOptions()} onSelect={handleList} />
+            <BooksList />
+          </>
+        )}
+        {/* <Form /> */}
+      </section>
       <Footer />
     </section>
   );

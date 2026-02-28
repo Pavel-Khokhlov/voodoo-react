@@ -1,11 +1,12 @@
 import { Book, BuyLink } from "@/store/books";
-import "./card.scss";
 
 import IconAmazon from "@/assets/logo/amazon.webp";
 import IconApple from "@/assets/logo/apple.webp";
 import IconBn from "@/assets/logo/b&n.webp";
 import IconBam from "@/assets/logo/bam.webp";
 import IconBs from "@/assets/logo/bookshop.webp";
+
+import "./book.scss";
 
 export const ICON_PATH = {
   Amazon: IconAmazon,
@@ -16,7 +17,7 @@ export const ICON_PATH = {
   "Bookshop.org": IconBs,
 } as const;
 
-const Card = ({ book }: { book: Book }) => {
+const BookItem = ({ book }: { book: Book }) => {
   return (
     <div className="book__wrapper">
       <img src={book.book_image} alt="cover book" className="book__cover" />
@@ -48,4 +49,4 @@ const Card = ({ book }: { book: Book }) => {
   );
 };
 
-export default Card;
+export default BookItem;

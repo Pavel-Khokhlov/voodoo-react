@@ -1,13 +1,13 @@
-import Card from "@/components/Card";
 import NoData from "@/components/NoData";
 import { useStore } from "@/store";
 
 import { useEffect, useState } from "react";
 import { Book, List } from "@/store/books";
+import BookItem from "@/components/Book";
 
-import "./cards.scss";
+import "./books.scss";
 
-const Cards = () => {
+const BooksList = () => {
   const { booksStore } = useStore();
 
   const [books, setBooks] = useState<Book[] | []>([]);
@@ -27,12 +27,12 @@ const Cards = () => {
     return <NoData />;
   }
   return (
-    <section className="cards">
+    <section className="books">
       {books?.map((book: Book) => {
-        return <Card key={book.book_uri} book={book} />;
+        return <BookItem key={book.book_uri} book={book} />;
       })}
     </section>
   );
 };
 
-export default Cards;
+export default BooksList;

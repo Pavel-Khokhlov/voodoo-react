@@ -64,6 +64,7 @@ interface BooksStore {
   booksError: string | null;
 
   // Actions
+  initializeFromDB: () => Promise<boolean>;
   getLists: () => Promise<void>;
   setList: (selected_list: string) => void;
   searchAuthor: (searchTerm: string) => void;
@@ -83,13 +84,109 @@ const initialState = {
   booksError: null,
 };
 
+// Вспомогательные функции для работы с IndexedDB
+const openDB = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("books-database", 1);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains("books-store")) {
+        db.createObjectStore("books-store");
+      }
+    };
+  });
+};
+
+const saveToDB = async (key: string, value: any): Promise<void> => {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("books-store", "readwrite");
+      const store = tx.objectStore("books-store");
+      const request = store.put(value, key);
+
+      request.onsuccess = () => {
+        tx.commit();
+        resolve();
+      };
+      request.onerror = () => reject(request.error);
+
+      tx.oncomplete = () => db.close();
+    });
+  } catch (error) {
+    console.error("Ошибка сохранения в IndexedDB:", error);
+  }
+};
+
+const loadFromDB = async (key: string): Promise<any> => {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("books-store", "readonly");
+      const store = tx.objectStore("books-store");
+      const request = store.get(key);
+
+      request.onsuccess = () => {
+        resolve(request.result);
+        db.close();
+      };
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("Ошибка загрузки из IndexedDB:", error);
+    return null;
+  }
+};
+
 // Создаем store
 export const useBooksStore = create<BooksStore>()(
   devtools(
     (set, get) => ({
       ...initialState,
 
+      // Функция для инициализации/загрузки данных из IndexedDB при старте
+      initializeFromDB: async () => {
+        try {
+          const savedData = await loadFromDB("books-data");
+          const lastUpdate = await loadFromDB("last-update");
+
+          if (savedData && lastUpdate) {
+            const now = Date.now();
+            const oneDayMs = 24 * 60 * 60 * 1000;
+
+            // Проверяем, не устарели ли данные
+            if (now - lastUpdate < oneDayMs) {
+              set({
+                ...savedData,
+                booksStatus: "resolved",
+              });
+              console.log("📚 Данные восстановлены из IndexedDB");
+              return true;
+            }
+          }
+          return false;
+        } catch (error) {
+          console.error("Ошибка инициализации из DB:", error);
+          return false;
+        }
+      },
+
       getLists: async () => {
+        const { initializeFromDB } = get();
+
+        // Сначала пробуем загрузить из IndexedDB
+        const loadedFromDB = await initializeFromDB();
+
+        // Если данные загружены из DB и они свежие, не делаем запрос
+        if (loadedFromDB) {
+          return;
+        }
+
+        // Иначе загружаем с сервера
         set({ booksStatus: "loading", booksError: null });
 
         const PATH =
@@ -100,20 +197,28 @@ export const useBooksStore = create<BooksStore>()(
           const res = await fetch(url);
 
           if (!res.ok) {
-            throw new Error("SERVER ERROR!");
+            throw new Error(`SERVER ERROR! Status: ${res.status}`);
           }
 
           const data = await res.json();
 
-          set({
-            lists: data.results.lists as List[],
+          const newState = {
+            lists: data.results.lists,
             bestsellers_date: data.results.bestsellers_date,
             next_published_date: data.results.next_published_date,
             previous_published_date: data.results.previous_published_date,
             published_date: data.results.published_date,
             published_date_description: data.results.published_date_description,
-            booksStatus: "resolved",
-          });
+            booksStatus: "resolved" as const,
+          };
+
+          set(newState);
+
+          // Сохраняем в IndexedDB
+          await saveToDB("books-data", newState);
+          await saveToDB("last-update", Date.now());
+
+          console.log("💾 Данные сохранены в IndexedDB");
         } catch (error) {
           set({
             booksStatus: "rejected",
@@ -130,7 +235,7 @@ export const useBooksStore = create<BooksStore>()(
         set(initialState);
       },
     }),
-    { name: "BooksStore" }, // имя для devtools
+    { name: "BooksStore" },
   ),
 );
 
