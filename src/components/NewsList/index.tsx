@@ -1,8 +1,6 @@
-import NoData from "@/components/NoData";
 import { useStore } from "@/store";
 
 import { useEffect, useState } from "react";
-import { Book, List } from "@/store/books";
 
 import "./newslist.scss";
 import { Section } from "@/store/news";
@@ -10,19 +8,30 @@ import { Section } from "@/store/news";
 const NewsList = () => {
   const { newsStore } = useStore();
 
-  const [news, setNews] = useState<any[] | []>([]);
-
   const handleSection = (value: string) => {
     newsStore.setSection(value);
   };
 
+  // Загружаем данные при монтировании компонента для получения списка секций
   useEffect(() => {
-    if (newsStore.selected_section === "") {
+    const loadSections = async () => {
+      // Загружаем список всех секций, если его нет
+      if (!newsStore.sections || newsStore.sections.length === 0) {
+        await newsStore.getNewsData();
+      }
+    };
+
+    loadSections();
+  }, []);
+
+  // Загружаем новости при изменении выбранной секции
+  useEffect(() => {
+    if (!newsStore.selected_section) {
       return;
     }
+
     const loadNews = async () => {
       await newsStore.getNewsData(newsStore.selected_section);
-      setNews(newsStore.current_news || []);
     };
 
     loadNews();
@@ -44,9 +53,24 @@ const NewsList = () => {
           );
         })}
       </div>
-      {news?.map((item: any) => {
-        return <p key={item.uri}>{item.title}</p>;
-      })}
+      {/* Отображаем состояние загрузки для новостей */}
+      {newsStore.currentNewsStatus === "loading" && (
+        <div>Загрузка новостей...</div>
+      )}
+
+      {/* Отображаем ошибку для новостей */}
+      {newsStore.currentNewsStatus === "rejected" && (
+        <div>Ошибка загрузки новостей: {newsStore.currentNewsError}</div>
+      )}
+
+      {/* Отображаем новости */}
+      {newsStore.currentNewsStatus === "resolved" && (
+        <div className="news__items">
+          {newsStore.current_news?.map((item: any) => {
+            return <p key={item.uri}>{item.title}</p>;
+          })}
+        </div>
+      )}
     </section>
   );
 };

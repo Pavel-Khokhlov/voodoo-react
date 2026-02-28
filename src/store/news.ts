@@ -2,6 +2,10 @@ import { dbService } from "@/db/indexedDB";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
+function keepOnlyLetters(str: string) {
+  return str.replace(/[^a-zA-Z]/g, "");
+}
+
 export interface Section {
   section: string;
   display_name: string;
@@ -57,7 +61,7 @@ export const useNewsStore = create<NewsStore>()(
 
           if (stored) {
             // Проверяем свежесть данных (1 час = 3600000 мс)
-            const MAX_AGE_HOUR = 60 * 60 * 1000;
+            const MAX_AGE_HOUR = 5 * 60 * 1000;
             const isFresh = dbService.isDataFresh(
               stored.timestamp,
               MAX_AGE_HOUR,
@@ -128,6 +132,11 @@ export const useNewsStore = create<NewsStore>()(
           const data = await res.json();
           console.log("WHATS THE DATA", data);
 
+          // Проверяем, что results существует и не null
+          if (!data.results) {
+            throw new Error("Данные не получены или имеют неверный формат");
+          }
+
           if (value) {
             // Сохраняем данные конкретной секции
             const newState = {
@@ -146,9 +155,12 @@ export const useNewsStore = create<NewsStore>()(
 
             console.log(`💾 Данные секции "${value}" сохранены в IndexedDB`);
           } else {
-            // Сохраняем данные всех секций
+            const arr = data.results.map((item: Section) => ({
+              ...item,
+              section: keepOnlyLetters(item.section),
+            }));
             const newState = {
-              sections: data.results,
+              sections: arr,
               sectionsStatus: "resolved" as const,
             };
 
@@ -164,11 +176,15 @@ export const useNewsStore = create<NewsStore>()(
             set({
               currentNewsStatus: "rejected",
               currentNewsError: (error as Error).message,
+              // Очищаем данные при ошибке
+              current_news: [],
             });
           } else {
             set({
               sectionsStatus: "rejected",
               sectionsError: (error as Error).message,
+              // Очищаем данные при ошибке
+              sections: [],
             });
           }
         }
