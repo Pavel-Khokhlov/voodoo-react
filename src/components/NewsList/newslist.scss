@@ -1,13 +1,16 @@
 .news {
-  &__list {
-    width: min(900px, 96vw);
+  &__section {
+    width: min(1200px, 96vw);
     height: 100%;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: min(10px, 1vw);
+    gap: min(6px, 1vw);
     margin: 0 auto min(30px, 5vw);
     padding: 0;
+    &_list {
+      gap: min(16px, 2vw);
+    }
   }
   &__button {
     border: none;
@@ -27,17 +30,5 @@
       padding: 2px 4px;
       font-weight: 400;
     }
-  }
-}
-
-@keyframes swing {
-  0% {
-    transform: rotate(-3deg) scale(1.02);
-  }
-  50% {
-    transform: rotate(0deg) scale(1.08);
-  }
-  100% {
-    transform: rotate(3deg) scale(1.02);
   }
 }

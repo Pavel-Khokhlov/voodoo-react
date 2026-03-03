@@ -3,10 +3,16 @@ import { useStore } from "@/store";
 import { useEffect, useState } from "react";
 
 import "./newslist.scss";
-import { Section } from "@/store/news";
+import { NewsProps, Section } from "@/store/news";
+import Loader from "../Loader";
+import NewsItem from "../NewsItem";
+import { formatDate } from "@/helpers/date";
+import { LinkOutlined } from "@ant-design/icons";
 
 const NewsList = () => {
   const { newsStore } = useStore();
+
+  const [mainNews, setMainNews] = useState<NewsProps | null>(null);
 
   const handleSection = (value: string) => {
     newsStore.setSection(value);
@@ -32,6 +38,7 @@ const NewsList = () => {
 
     const loadNews = async () => {
       await newsStore.getNewsData(newsStore.selected_section);
+      setMainNews(newsStore.current_news[0]);
     };
 
     loadNews();
@@ -39,7 +46,9 @@ const NewsList = () => {
 
   return (
     <section className="news__wrapper">
-      <div className="news__list">
+      <div className="news__section">
+        {/* Отображаем состояние загрузки для новостей */}
+        {newsStore.sectionsStatus === "loading" && <Loader />}
         {newsStore.sections?.map((section: Section) => {
           return (
             <button
@@ -54,9 +63,7 @@ const NewsList = () => {
         })}
       </div>
       {/* Отображаем состояние загрузки для новостей */}
-      {newsStore.currentNewsStatus === "loading" && (
-        <div>Загрузка новостей...</div>
-      )}
+      {newsStore.currentNewsStatus === "loading" && <Loader />}
 
       {/* Отображаем ошибку для новостей */}
       {newsStore.currentNewsStatus === "rejected" && (
@@ -65,10 +72,16 @@ const NewsList = () => {
 
       {/* Отображаем новости */}
       {newsStore.currentNewsStatus === "resolved" && (
-        <div className="news__items">
-          {newsStore.current_news?.map((item: any) => {
-            return <p key={item.uri}>{item.title}</p>;
-          })}
+        <div className="news__section news__section_list">
+          {mainNews && <NewsItem key={mainNews.uri} item={mainNews} />}
+          <div className="news__section news__section_list">
+            {newsStore.current_news?.map((item: NewsProps, index: number) => {
+              if (index === 0) {
+                return;
+              }
+              return <NewsItem key={item.uri} item={item} isSmall={true} />;
+            })}
+          </div>
         </div>
       )}
     </section>

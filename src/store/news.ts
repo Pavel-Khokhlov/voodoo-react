@@ -2,13 +2,78 @@ import { dbService } from "@/db/indexedDB";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
+export interface MultimediaProps {
+  url: string;
+  format: string;
+  height: number;
+  width: number;
+  type: string;
+  subtype: string;
+  caption: string;
+  copyright: string;
+}
+
+interface FormattedMultimediaProps {
+  caption: string;
+  copyright: string;
+  [key: string]: string; // Индексная сигнатура для динамических полей
+}
+
 function keepOnlyLetters(str: string) {
   return str.replace(/[^a-zA-Z]/g, "");
+}
+
+function formatMultimedia(data: MultimediaProps[]): FormattedMultimediaProps {
+  // Защита от undefined или пустого массива
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return {
+      caption: "",
+      copyright: "",
+      url1: "", // Добавляем пустой url по умолчанию
+    };
+  }
+
+  const firstItem = data[0];
+
+  const result = {
+    caption: firstItem.caption,
+    copyright: firstItem.copyright,
+  };
+
+  const urlsObject = data.reduce((acc, item, index) => {
+    return {
+      ...acc,
+      [`url${index + 1}`]: item.url,
+    };
+  }, {});
+
+  return Object.assign(result, urlsObject) as {
+    caption: string;
+    copyright: string;
+    [key: `url${number}`]: string;
+  };
 }
 
 export interface Section {
   section: string;
   display_name: string;
+}
+
+export interface NewsProps {
+  section: string;
+  title: string;
+  abstract: string;
+  uri: string;
+  url: string;
+  byline: string;
+  source: string;
+  published_date: string;
+  material_type_facet: string;
+  des_facet: string[];
+  org_facet: string[];
+  per_facet: string[];
+  geo_facet: string[];
+  multimedia: FormattedMultimediaProps;
 }
 
 export interface NewsStore {
@@ -17,7 +82,7 @@ export interface NewsStore {
   sectionsStatus: "idle" | "loading" | "resolved" | "rejected" | null;
   sectionsError: string | null;
 
-  current_news: any[];
+  current_news: NewsProps[];
   currentNewsStatus: "idle" | "loading" | "resolved" | "rejected" | null;
   currentNewsError: string | null;
 
@@ -138,9 +203,36 @@ export const useNewsStore = create<NewsStore>()(
           }
 
           if (value) {
+            const formattedResults = data.results
+              .map(
+                (item: any): NewsProps => ({
+                  section: item.section,
+                  title: item.title,
+                  abstract: item.abstract,
+                  uri: item.uri,
+                  url: item.url,
+                  byline: item.byline,
+                  source: item.source,
+                  published_date: item.published_date,
+                  material_type_facet: item.material_type_facet,
+                  des_facet: item.des_facet,
+                  org_facet: item.org_facet,
+                  per_facet: item.per_facet,
+                  geo_facet: item.geo_facet,
+                  multimedia: formatMultimedia(item.multimedia),
+                }),
+              )
+              .filter((item: any) => {
+                const hasMultimediaUrls = Object.keys(item.multimedia).some(
+                  (key) => key.startsWith("url") && item.multimedia[key],
+                );
+
+                return item.title?.trim() && item.url && hasMultimediaUrls;
+              });
+
             // Сохраняем данные конкретной секции
             const newState = {
-              current_news: data.results,
+              current_news: formattedResults,
               currentNewsStatus: "resolved" as const,
             };
 

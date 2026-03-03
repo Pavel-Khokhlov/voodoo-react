@@ -8,9 +8,10 @@ import { List } from "@/store/books";
 import { useCallback, useState, useEffect } from "react";
 import { Category } from "@/store/globalUI";
 
-import "./app.scss";
 import BooksList from "../Books";
 import NewsList from "../NewsList";
+
+import "./app.scss";
 
 const App = () => {
   const { booksStore, globalUIStore, newsStore } = useStore();
@@ -28,17 +29,15 @@ const App = () => {
     if (selected === "") {
       return;
     }
+    globalUIStore.setCategory(selected);
     switch (selected) {
       case "books":
-        globalUIStore.setCategory(selected);
         booksStore.getLists();
         break;
       case "news":
-        globalUIStore.setCategory(selected);
         newsStore.getNewsData()
         break;
       default:
-        globalUIStore.setCategory(selected);
         break;
     }
   }, [selected]);
