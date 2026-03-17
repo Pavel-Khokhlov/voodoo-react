@@ -14,13 +14,15 @@ const BooksList = () => {
 
   useEffect(() => {
     if (booksStore.selected_list === "") {
+      setBooks([]);
       return;
     }
-    const currentBooks = booksStore.lists.filter((list: List) => {
-      return list.list_name_encoded === booksStore.selected_list;
-    });
-    // console.log("useEffect", currentBooks[0]?.books);
-    setBooks(currentBooks[0].books);
+    const currentBooks = booksStore.lists
+      .filter((list: List) => {
+        return list.list_name_encoded === booksStore.selected_list;
+      })[0]
+      .books.sort((a, b) => b.weeks_on_list - a.weeks_on_list);
+    setBooks(currentBooks);
   }, [booksStore.selected_list]);
 
   if (booksStore.lists.length === 0) {

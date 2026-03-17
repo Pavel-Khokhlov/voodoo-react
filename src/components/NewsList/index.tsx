@@ -2,17 +2,17 @@ import { useStore } from "@/store";
 
 import { useEffect, useState } from "react";
 
-import "./newslist.scss";
 import { NewsProps, Section } from "@/store/news";
 import Loader from "../Loader";
 import NewsItem from "../NewsItem";
-import { formatDate } from "@/helpers/date";
-import { LinkOutlined } from "@ant-design/icons";
+
+import "./newslist.scss";
+import SectionItem from "../SectionItem";
 
 const NewsList = () => {
   const { newsStore } = useStore();
 
-  const [mainNews, setMainNews] = useState<NewsProps | null>(null);
+  const mainNews = newsStore.current_news?.[0];
 
   const handleSection = (value: string) => {
     newsStore.setSection(value);
@@ -38,7 +38,6 @@ const NewsList = () => {
 
     const loadNews = async () => {
       await newsStore.getNewsData(newsStore.selected_section);
-      setMainNews(newsStore.current_news[0]);
     };
 
     loadNews();
@@ -51,14 +50,12 @@ const NewsList = () => {
         {newsStore.sectionsStatus === "loading" && <Loader />}
         {newsStore.sections?.map((section: Section) => {
           return (
-            <button
+            <SectionItem
               key={section.section}
-              type="button"
-              className="news__button"
-              onClick={() => handleSection(section.section)}
-            >
-              {section.display_name}
-            </button>
+              section={section}
+              value={newsStore.selected_section}
+              onHandle={handleSection}
+            />
           );
         })}
       </div>

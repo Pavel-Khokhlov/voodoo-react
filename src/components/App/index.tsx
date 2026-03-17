@@ -10,11 +10,12 @@ import { Category } from "@/store/globalUI";
 
 import BooksList from "../Books";
 import NewsList from "../NewsList";
+import TopStories from "../TopStories";
 
 import "./app.scss";
 
 const App = () => {
-  const { booksStore, globalUIStore, newsStore } = useStore();
+  const { booksStore, globalUIStore, newsStore, topStoriesStore } = useStore();
   const [selected, setSelected] = useState<Category>("");
 
   const handleCategory = async (value: string) => {
@@ -35,7 +36,17 @@ const App = () => {
         booksStore.getLists();
         break;
       case "news":
-        newsStore.getNewsData()
+        newsStore.getNewsData();
+        topStoriesStore.reset();
+        break;
+      case "topstories":
+        newsStore.reset();
+        break;
+      case "search":
+        console.log("search");
+        break;
+      case "mostpopular":
+        console.log("mostpopular");
         break;
       default:
         break;
@@ -66,8 +77,8 @@ const App = () => {
             <BooksList />
           </>
         )}
-        {globalUIStore.category !== "books" &&
-          globalUIStore.category !== "" && <NewsList />}
+        {globalUIStore.category === "news" && <NewsList />}
+        {globalUIStore.category === "topstories" && <TopStories />}
         {/* <Form /> */}
       </section>
       <Footer />
