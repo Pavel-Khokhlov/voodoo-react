@@ -19,6 +19,9 @@
   }
   &__cover {
     width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
     margin-bottom: min(15px, 1.5vw);
   }
   &__text {
@@ -42,7 +45,7 @@
     margin: auto 0 0;
   }
   &__buy {
-    margin: 0;
+    margin: 0 0 5px;
     font-size: min(14px, 2vw);
   }
   &__icons {
