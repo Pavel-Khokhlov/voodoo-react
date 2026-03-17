@@ -1,9 +1,11 @@
 // src/lib/indexedDB.ts
 
+export type DataType = "books" | "news" | "top_stories" | "other";
+
 export interface StoredData<T = any> {
   data: T;
   timestamp: number;
-  type: "books" | "news" | "other";
+  type: DataType;
 }
 
 export interface DBOptions {
@@ -45,11 +47,7 @@ class IndexedDBService {
   }
 
   // Сохранить данные
-  async save<T>(
-    key: string,
-    data: T,
-    type: "books" | "news" | "other" = "other",
-  ): Promise<void> {
+  async save<T>(key: string, data: T, type: DataType = "other"): Promise<void> {
     try {
       const db = await this.openDB();
 
@@ -124,7 +122,7 @@ class IndexedDBService {
   }
 
   // Очистить все данные определенного типа
-  async clearByType(type: "books" | "news" | "other"): Promise<void> {
+  async clearByType(type: DataType): Promise<void> {
     try {
       const db = await this.openDB();
 
