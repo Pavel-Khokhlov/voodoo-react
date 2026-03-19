@@ -1,0 +1,8 @@
+.button {
+  &__get-news {
+    width: min(200px, 96vw);
+    margin: 0 auto min(20px, 5vw);
+    display: flex;
+    justify-content: center;
+  }
+}

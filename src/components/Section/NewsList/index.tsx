@@ -1,13 +1,15 @@
 import { useStore } from "@/store";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { NewsProps, Section } from "@/store/news";
-import Loader from "../Loader";
-import NewsItem from "../NewsItem";
+import Loader from "@/components/Base/Loader";
+import NewsItem from "@/components/NewsItem";
+
+import SectionItem from "@/components/SectionItem";
+import Error from "@/components/Base/Error";
 
 import "./newslist.scss";
-import SectionItem from "../SectionItem";
 
 const NewsList = () => {
   const { newsStore } = useStore();
@@ -59,24 +61,26 @@ const NewsList = () => {
           );
         })}
       </div>
-      {/* Отображаем состояние загрузки для новостей */}
+      {/* Отображаем состояние загрузки */}
       {newsStore.currentNewsStatus === "loading" && <Loader />}
 
-      {/* Отображаем ошибку для новостей */}
+      {/* Отображаем ошибку */}
       {newsStore.currentNewsStatus === "rejected" && (
-        <div>Ошибка загрузки новостей: {newsStore.currentNewsError}</div>
+        <Error error={newsStore.currentNewsError} />
       )}
 
       {/* Отображаем новости */}
       {newsStore.currentNewsStatus === "resolved" && (
         <div className="news__section news__section_list">
-          {mainNews && <NewsItem key={mainNews.uri} item={mainNews} />}
+          {mainNews && (
+            <NewsItem key={mainNews.uri} item={mainNews} isMain={true} />
+          )}
           <div className="news__section news__section_list">
             {newsStore.current_news?.map((item: NewsProps, index: number) => {
               if (index === 0) {
                 return;
               }
-              return <NewsItem key={item.uri} item={item} isSmall={true} />;
+              return <NewsItem key={item.uri} item={item} />;
             })}
           </div>
         </div>

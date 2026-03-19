@@ -1,5 +1,4 @@
-export const formatDate = (str: string): string => {
-  const date = new Date(str);
+export const formatDate = (date: Date): string => {
 
   const formatter = new Intl.DateTimeFormat("ru-RU", {
     day: "2-digit",

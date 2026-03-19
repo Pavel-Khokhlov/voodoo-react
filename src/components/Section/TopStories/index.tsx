@@ -3,9 +3,10 @@ import { useStore } from "@/store";
 import { useEffect, useState } from "react";
 
 import { NewsProps, Section } from "@/store/news";
-import Loader from "../Loader";
-import NewsItem from "../NewsItem";
-import SectionItem from "../SectionItem";
+import Loader from "@/components/Base/Loader";
+import NewsItem from "@/components/NewsItem";
+import SectionItem from "@/components/SectionItem";
+import Error from "@/components/Base/Error";
 import { TopSections } from "@/store/top-stories";
 
 import "./newslist.scss";
@@ -64,25 +65,25 @@ const TopStories = () => {
           );
         })}
       </div>
-      {/* Отображаем состояние загрузки для новостей */}
+      {/* Отображаем состояние загрузки */}
       {topStoriesStore.topStoriesStatus === "loading" && <Loader />}
 
-      {/* Отображаем ошибку для новостей */}
+      {/* Отображаем ошибку */}
       {topStoriesStore.topStoriesStatus === "rejected" && (
-        <div>Ошибка загрузки новостей: {topStoriesStore.topStoriesError}</div>
+        <Error error={topStoriesStore.topStoriesError} />
       )}
 
       {/* Отображаем новости */}
       {topStoriesStore.topStoriesStatus === "resolved" && (
         <div className="news__section news__section_list">
-          {mainStory && <NewsItem key={mainStory.uri} item={mainStory} />}
+          {mainStory && <NewsItem key={mainStory.uri} item={mainStory} isMain={true} />}
           <div className="news__section news__section_list">
             {topStoriesStore.topStories?.map(
               (item: NewsProps, index: number) => {
                 if (index === 0) {
                   return;
                 }
-                return <NewsItem key={item.uri} item={item} isSmall={true} />;
+                return <NewsItem key={item.uri} item={item} />;
               },
             )}
           </div>
