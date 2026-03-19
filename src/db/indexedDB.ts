@@ -1,6 +1,6 @@
 // src/lib/indexedDB.ts
 
-export type DataType = "books" | "news" | "top_stories" | "other";
+export type DataType = "books" | "news" | "top_stories" | "most_popular" | "other";
 
 export interface StoredData<T = any> {
   data: T;

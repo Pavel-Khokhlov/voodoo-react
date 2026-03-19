@@ -1,29 +1,32 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { useCallback, useState, useEffect } from "react";
+import Header from "@/components/Base/Header";
+import Footer from "@/components/Base/Footer";
 import Selector from "@/components/Base/Selector";
 import { NYT_DATA } from "@/data/newYorkTimes";
 
 import { useStore } from "@/store";
 import { List } from "@/store/books";
-import { useCallback, useState, useEffect } from "react";
 import { Category } from "@/store/globalUI";
 
-import BooksList from "../Books";
-import NewsList from "../NewsList";
-import TopStories from "../TopStories";
+import BooksList from "../Section/Books";
+import NewsList from "../Section/NewsList";
+import TopStories from "../Section/TopStories";
+import MostPopular from "../Section/MostPopular";
 
 import "./app.scss";
 
 const App = () => {
-  const { booksStore, globalUIStore, newsStore, topStoriesStore } = useStore();
+  const {
+    booksStore,
+    globalUIStore,
+    newsStore,
+    topStoriesStore,
+    mostPopularStore,
+  } = useStore();
   const [selected, setSelected] = useState<Category>("");
 
   const handleCategory = async (value: string) => {
     setSelected(value as Category);
-  };
-
-  const handleList = async (value: string) => {
-    booksStore.setList(value);
   };
 
   const getData = useCallback(() => {
@@ -34,19 +37,28 @@ const App = () => {
     switch (selected) {
       case "books":
         booksStore.getLists();
+        topStoriesStore.reset();
+        newsStore.reset();
+        mostPopularStore.reset();
         break;
       case "news":
         newsStore.getNewsData();
         topStoriesStore.reset();
+        booksStore.reset();
+        mostPopularStore.reset();
         break;
       case "topstories":
         newsStore.reset();
+        booksStore.reset();
+        mostPopularStore.reset();
         break;
-      case "search":
+      /* case "search":
         console.log("search");
-        break;
+        break; */
       case "mostpopular":
-        console.log("mostpopular");
+        topStoriesStore.reset();
+        newsStore.reset();
+        booksStore.reset();
         break;
       default:
         break;
@@ -57,29 +69,19 @@ const App = () => {
     getData();
   }, [getData]);
 
-  const getListsOptions = () => {
-    const options = booksStore.lists.map((list: List) => {
-      return {
-        value: list.list_name_encoded,
-        label: list.display_name,
-      };
-    });
-    return options;
-  };
   return (
     <section className="app">
       <Header />
-      <Selector optionsData={NYT_DATA} onSelect={handleCategory} />
+      <Selector
+        optionsData={NYT_DATA}
+        placeholder="Select the news section"
+        onSelect={handleCategory}
+      />
       <section className="main">
-        {globalUIStore.category === "books" && (
-          <>
-            <Selector optionsData={getListsOptions()} onSelect={handleList} />
-            <BooksList />
-          </>
-        )}
+        {globalUIStore.category === "books" && <BooksList />}
         {globalUIStore.category === "news" && <NewsList />}
         {globalUIStore.category === "topstories" && <TopStories />}
-        {/* <Form /> */}
+        {globalUIStore.category === "mostpopular" && <MostPopular />}
       </section>
       <Footer />
     </section>

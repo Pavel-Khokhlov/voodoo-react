@@ -1,73 +1,99 @@
 import { dbService } from "@/db/indexedDB";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { NewsProps, formatMultimedia } from "./news";
+import { NewsProps, FormattedMultimediaProps } from "./news";
 
-export const TopSections = [
-  "arts",
-  "automobiles",
-  "books",
-  "business",
-  "fashion",
-  "food",
-  "health",
-  "home",
-  "insider",
-  "magazine",
-  "movies",
-  "nyregion",
-  "obituaries",
-  "opinion",
-  "politics",
-  "realestate",
-  "science",
-  "sports",
-  "sundayreview",
-  "technology",
-  "theater",
-  "t-magazine",
-  "travel",
-  "upshot",
-  "us",
-  "world",
+export const Popular_Type = [
+  { value: "emailed", label: "Get most emailed articles" },
+  { value: "shared", label: "Get most shared articles" },
+  { value: "viewed", label: "Get most viewed articles" },
 ];
 
-export interface TopStoriesStore {
-  selected_section: string;
-  topStories: NewsProps[];
-  topStoriesStatus: "idle" | "loading" | "resolved" | "rejected" | null;
-  topStoriesError: string | null;
+export const Popular_Period = [
+  { value: "1", label: "For the last day" },
+  { value: "7", label: "For the last seven days" },
+  { value: "30", label: "For the last thirty days" },
+];
+
+interface MediaProps {
+  format: string;
+  height: number;
+  url: string;
+  width: number;
+}
+
+export interface PopularMultimediaProps {
+  approved_for_syndication: number;
+  caption: string;
+  copyright: string;
+  "media-metadata": MediaProps[];
+  subtype: string;
+  type: string;
+}
+
+export function formatPopularMultimedia(data: any[]): FormattedMultimediaProps {
+  const result: FormattedMultimediaProps = {
+    caption: "",
+    copyright: "",
+    url1: "",
+  };
+
+  // Проверяем, есть ли элементы в массиве media
+  if (data && data.length > 0) {
+    const mediaItem = data[0]; // Берем первый элемент
+
+    result.caption = mediaItem.caption || "";
+    result.copyright = mediaItem.copyright || "";
+
+    // Проверяем наличие media-metadata
+    if (
+      mediaItem["media-metadata"] &&
+      Array.isArray(mediaItem["media-metadata"])
+    ) {
+      mediaItem["media-metadata"].forEach(
+        (media: MediaProps, index: number) => {
+          result[`url${index + 1}`] = media.url || "";
+        },
+      );
+    }
+  }
+
+  return result;
+}
+
+export interface MostPopularStore {
+  mostPopular: NewsProps[];
+  mostPopularStatus: "idle" | "loading" | "resolved" | "rejected" | null;
+  mostPopularError: string | null;
 
   // Actions
-  initializeFromDB: (value?: string) => Promise<boolean>;
-  getTopStoriesData: (selected_section?: string) => Promise<void>;
-  setSection: (selected_section: string) => void;
+  initializeFromDB: (type: string, period: string) => Promise<boolean>;
+  getMostPopularData: (type: string, period: string) => Promise<void>;
   reset: () => void;
 }
 
 const initialState = {
-  selected_section: "",
-  topStories: [],
-  topStoriesStatus: null,
-  topStoriesError: null,
+  mostPopular: [],
+  mostPopularStatus: null,
+  mostPopularError: null,
 };
 
 // Ключи для хранения в IndexedDB
 const DB_KEYS = {
-  TOP_STORIES_PREFIX: "top_stories_",
+  MOST_POPULAR_PREFIX: "most_popular_",
 };
 
 // Создаем store
-export const useTopStoriesStore = create<TopStoriesStore>()(
+export const useMostPopularStore = create<MostPopularStore>()(
   devtools(
     (set, get) => ({
       ...initialState,
 
       // Функция для инициализации/загрузки данных из IndexedDB при старте
-      initializeFromDB: async (value: string | undefined) => {
+      initializeFromDB: async (type: string, period: string) => {
         try {
-          let currentKey = DB_KEYS.TOP_STORIES_PREFIX + value;
-          const stored = await dbService.load<TopStoriesStore>(currentKey);
+          let currentKey = DB_KEYS.MOST_POPULAR_PREFIX + type + period;
+          const stored = await dbService.load<MostPopularStore>(currentKey);
 
           if (stored) {
             // Проверяем свежесть данных (1 час = 3600000 мс)
@@ -81,13 +107,13 @@ export const useTopStoriesStore = create<TopStoriesStore>()(
               // Данные свежие - восстанавливаем состояние
               set({
                 ...stored.data,
-                topStoriesStatus: "resolved",
+                mostPopularStatus: "resolved",
               });
               return true;
             } else {
               // Данные устарели - удаляем их и будем загружать новые
               console.log(
-                `🕒 Данные для секции "${value}" устарели, загружаем новые...`,
+                `🕒 Данные типа "${type}" за период "${period}" устарели, загружаем новые...`,
               );
               await dbService.delete(currentKey);
               return false;
@@ -100,30 +126,32 @@ export const useTopStoriesStore = create<TopStoriesStore>()(
         }
       },
 
-      getTopStoriesData: async (value?: string) => {
-        if (!value) return;
+      getMostPopularData: async (type: string, period: string) => {
+        if (!type && !period) return;
         const { initializeFromDB } = get();
 
         // Сначала пробуем загрузить из IndexedDB
         let loadedFromDB;
-        if (value) {
-          loadedFromDB = await initializeFromDB(value);
+        if (type && period) {
+          loadedFromDB = await initializeFromDB(type, period);
         }
 
         // Если данные загружены из DB и они свежие, не делаем запрос
         if (loadedFromDB) {
-          console.log(`📦 Данные для секции "${value}" загружены из IndexedDB`);
+          console.log(
+            `📦 Данные типа "${type}" за период "${period}" загружены из IndexedDB`,
+          );
           return;
         }
 
         // Устанавливаем соответствующий статус загрузки
-        if (value) {
-          set({ topStoriesStatus: "loading", topStoriesError: null });
+        if (type && period) {
+          set({ mostPopularStatus: "loading", mostPopularError: null });
         }
 
-        const PATH = import.meta.env.VITE_NYT_TOP_STORIES;
+        const PATH = import.meta.env.VITE_NYT_MOST_POPULAR;
 
-        const url = `/api/nyt${PATH}/${value}.json`;
+        const url = `/api/nyt${PATH}/${type}/${period}.json`;
 
         try {
           const res = await fetch(url);
@@ -139,7 +167,7 @@ export const useTopStoriesStore = create<TopStoriesStore>()(
             throw new Error("The data was not received or has an incorrect format.");
           }
 
-          if (value) {
+          if (type && period) {
             const formattedResults = data.results
               .map(
                 (item: any): NewsProps => ({
@@ -151,12 +179,12 @@ export const useTopStoriesStore = create<TopStoriesStore>()(
                   byline: item.byline,
                   source: item.source,
                   published_date: new Date(item.published_date),
-                  updated: new Date(item.updated_date),
+                  updated: new Date(item.updated),
                   des_facet: item.des_facet,
                   org_facet: item.org_facet,
                   per_facet: item.per_facet,
                   geo_facet: item.geo_facet,
-                  multimedia: formatMultimedia(item.multimedia),
+                  multimedia: formatPopularMultimedia(item.media),
                 }),
               )
               .filter((item: any) => {
@@ -169,44 +197,41 @@ export const useTopStoriesStore = create<TopStoriesStore>()(
 
             // Сохраняем данные конкретной секции
             const newState = {
-              topStories: formattedResults.sort(
+              mostPopular: formattedResults.sort(
                 (a: NewsProps, b: NewsProps) =>
-                  b.published_date.getTime() - a.published_date.getTime(),
+                  b.updated.getTime() - a.updated.getTime(),
               ),
-              topStoriesStatus: "resolved" as const,
+              mostPopularStatus: "resolved" as const,
             };
 
             set(newState);
 
             // Сохраняем в IndexedDB с ключом, включающим название секции
             await dbService.save(
-              `${DB_KEYS.TOP_STORIES_PREFIX}${value}`,
+              `${DB_KEYS.MOST_POPULAR_PREFIX}${type}${period}`,
               newState,
-              "top_stories",
+              "most_popular",
             );
 
-            console.log(`💾 Данные секции "${value}" сохранены в IndexedDB`);
+            console.log(
+              `💾 Данные типа "${type}" за период "${period}" сохранены в IndexedDB`,
+            );
           }
         } catch (error) {
-          if (value) {
+          if (type && period) {
             set({
-              topStoriesStatus: "rejected",
-              topStoriesError: (error as Error).message,
-              // Очищаем данные при ошибке
-              topStories: [],
+              mostPopularStatus: "rejected",
+              mostPopularError: (error as Error).message,
+              mostPopular: [],
             });
           }
         }
-      },
-
-      setSection: (selected_section: string) => {
-        set({ selected_section });
       },
 
       reset: () => {
         set(initialState);
       },
     }),
-    { name: "TopStoriesStore" },
+    { name: "MostPopularStore" },
   ),
 );
