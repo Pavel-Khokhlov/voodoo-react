@@ -5,15 +5,15 @@ import { LinkOutlined } from "@ant-design/icons";
 
 interface ItemProps {
   item: NewsProps;
-  isSmall?: boolean;
+  isMain?: boolean;
 }
 
-const NewsItem = ({ item, isSmall = false }: ItemProps) => {
+const NewsItem = ({ item, isMain = false }: ItemProps) => {
   return (
-    <div className={`news__main ${isSmall ? '_small' : ''}`}>
+    <div className={`news__main ${isMain ? '' : '_small'}`}>
       <div className="news__image-container">
         <img
-          src={isSmall ? item.multimedia.url2 : item.multimedia.url3}
+          src={!isMain ? item.multimedia.url2 : item.multimedia.url3}
           className="news__image"
           alt={item.title}
         />
@@ -29,15 +29,15 @@ const NewsItem = ({ item, isSmall = false }: ItemProps) => {
           </a>
         </div>
       </div>
-      <div className={`news__main-info ${isSmall ? '_small' : ''}`}>
+      <div className={`news__main-info ${!isMain ? '_small' : ''}`}>
         <h3 className="news__text news__title">{item.title}</h3>
         <p className="news__text news__abstract">{item.abstract}</p>
-        {!isSmall && <p className="news__text news__byline">{item.byline}</p>}
+        {isMain && <p className="news__text news__byline">{item.byline}</p>}
         <div className="news__footer">
           <p className="news__text news__descrip">
-            {formatDate(item.published_date)}
+            {formatDate(item.updated)}
           </p>
-          {!isSmall && (
+          {isMain && (
             <p className="news__text news__descrip">{item.source}</p>
           )}
           <a

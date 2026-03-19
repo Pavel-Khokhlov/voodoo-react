@@ -13,17 +13,19 @@ export interface MultimediaProps {
   copyright: string;
 }
 
-interface FormattedMultimediaProps {
+export interface FormattedMultimediaProps {
   caption: string;
   copyright: string;
   [key: string]: string; // Индексная сигнатура для динамических полей
 }
 
-function keepOnlyLetters(str: string) {
+export function keepOnlyLetters(str: string) {
   return str.replace(/[^a-zA-Z]/g, "");
 }
 
-function formatMultimedia(data: MultimediaProps[]): FormattedMultimediaProps {
+export function formatMultimedia(
+  data: MultimediaProps[],
+): FormattedMultimediaProps {
   // Защита от undefined или пустого массива
   if (!data || !Array.isArray(data) || data.length === 0) {
     return {
@@ -67,8 +69,8 @@ export interface NewsProps {
   url: string;
   byline: string;
   source: string;
-  published_date: string;
-  material_type_facet: string;
+  published_date: Date;
+  updated: Date;
   des_facet: string[];
   org_facet: string[];
   per_facet: string[];
@@ -195,11 +197,12 @@ export const useNewsStore = create<NewsStore>()(
           }
 
           const data = await res.json();
-          console.log("WHATS THE DATA", data);
 
           // Проверяем, что results существует и не null
           if (!data.results) {
-            throw new Error("Данные не получены или имеют неверный формат");
+            throw new Error(
+              "The data was not received or has an incorrect format.",
+            );
           }
 
           if (value) {
@@ -213,8 +216,8 @@ export const useNewsStore = create<NewsStore>()(
                   url: item.url,
                   byline: item.byline,
                   source: item.source,
-                  published_date: item.published_date,
-                  material_type_facet: item.material_type_facet,
+                  published_date: new Date(item.published_date),
+                  updated: new Date(item.updated_date),
                   des_facet: item.des_facet,
                   org_facet: item.org_facet,
                   per_facet: item.per_facet,
@@ -268,14 +271,12 @@ export const useNewsStore = create<NewsStore>()(
             set({
               currentNewsStatus: "rejected",
               currentNewsError: (error as Error).message,
-              // Очищаем данные при ошибке
               current_news: [],
             });
           } else {
             set({
               sectionsStatus: "rejected",
               sectionsError: (error as Error).message,
-              // Очищаем данные при ошибке
               sections: [],
             });
           }
