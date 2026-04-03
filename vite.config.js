@@ -75,5 +75,19 @@ export default defineConfig({
   },
   define: {
     'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version)
-  }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/test/setup.ts',
+      ],
+    },
+  },
 });

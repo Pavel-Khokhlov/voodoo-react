@@ -1,7 +1,8 @@
-import "./newsitem.scss";
 import { NewsProps } from "@/store/news";
 import { formatDate } from "@/helpers/date";
 import { LinkOutlined } from "@ant-design/icons";
+
+import "./newsitem.scss";
 
 interface ItemProps {
   item: NewsProps;

@@ -3,7 +3,7 @@ import { useStore } from "@/store";
 
 import { useEffect, useState } from "react";
 import { Book, List } from "@/store/books";
-import BookItem from "@/components/Book";
+import BookItem from "@/components/BookItem";
 import Selector from "@/components/Base/Selector";
 import Loader from "@/components/Base/Loader";
 import Error from "@/components/Base/Error";
